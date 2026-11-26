@@ -366,6 +366,13 @@ h1, h2, h3, p { margin-top: 0; }
 .customer-panel { margin-top: 22px; padding: clamp(20px, 3.5vw, 32px); border: 1px solid var(--line); background: var(--white); }
 .customer-section-heading { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 21px; }
 .customer-section-heading h2 { margin: 7px 0 0; color: var(--green-deep); font: 500 25px/1.2 var(--serif); }
+.profile-heading { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+.profile-heading .customer-section-heading { flex: 1; align-items: center; margin: 0; }
+.profile-heading .customer-section-heading > p { margin: 0; color: var(--muted); font-size: 10px; }
+.profile-avatar { width: 54px; height: 54px; flex: 0 0 54px; display: grid; place-items: center; border: 1px solid #bdcabb; border-radius: 50%; background: #e8eee5; color: var(--green-deep); font: 500 17px var(--serif); }
+.profile-panel .customer-form-grid label { position: relative; }
+.profile-panel .field-hint { display: block; margin-top: -1px; color: var(--muted); font-size: 9px; line-height: 1.4; }
+.profile-panel .button { min-width: 170px; }
 .customer-form { display: flex; flex-direction: column; align-items: flex-start; gap: 17px; }
 .customer-form-grid { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .customer-form label { display: flex; flex-direction: column; gap: 7px; color: #4b584e; font-size: 10px; font-weight: 600; }
@@ -488,6 +495,9 @@ h1, h2, h3, p { margin-top: 0; }
 .account-pagination a { color: var(--green); text-decoration: underline; text-underline-offset: 3px; }
 
 @media (max-width: 720px) {
+  .profile-heading { align-items: flex-start; }
+  .profile-heading .customer-section-heading { align-items: flex-start; flex-direction: column; gap: 5px; }
+  .profile-avatar { width: 48px; height: 48px; flex-basis: 48px; }
   .customer-page { width: min(100% - 36px, 1120px); padding: 34px 0 58px; }
   .customer-nav { display: grid; grid-template-columns: 1fr 1fr; }
   .customer-nav a { padding: 11px 9px; text-align: center; }

@@ -24,9 +24,13 @@ $activeAccountPage = 'account';
     <article><span>Saved addresses</span><strong><?= (int) $summary['addresses'] ?></strong></article>
   </section>
 
-  <section class="customer-panel">
-    <div class="customer-section-heading">
-      <div><span class="eyebrow">ACCOUNT DETAILS</span><h2>Personal information</h2></div>
+  <section class="customer-panel profile-panel">
+    <div class="profile-heading">
+      <div class="profile-avatar" aria-hidden="true"><?= escapeHtml(strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1))) ?></div>
+      <div class="customer-section-heading">
+        <div><span class="eyebrow">ACCOUNT DETAILS</span><h2>Personal information</h2></div>
+        <p>Keep your contact details current.</p>
+      </div>
     </div>
     <form method="post" action="<?= escapeHtml($basePath) ?>/account.php" class="customer-form">
       <input type="hidden" name="csrf_token" value="<?= escapeHtml($csrfToken) ?>">
@@ -34,15 +38,19 @@ $activeAccountPage = 'account';
       <div class="customer-form-grid">
         <label>First name
           <input name="first_name" type="text" autocomplete="given-name" maxlength="100" value="<?= escapeHtml($user['first_name']) ?>" required>
+          <span class="field-hint">The name used on your account</span>
         </label>
         <label>Last name
           <input name="last_name" type="text" autocomplete="family-name" maxlength="100" value="<?= escapeHtml($user['last_name']) ?>" required>
+          <span class="field-hint">Your family or surname</span>
         </label>
         <label>Email address
           <input name="email" type="email" autocomplete="email" maxlength="254" value="<?= escapeHtml($user['email']) ?>" required>
+          <span class="field-hint">Used for sign-in and account updates</span>
         </label>
         <label>Ghana phone number
           <input name="phone" type="tel" autocomplete="tel" maxlength="24" placeholder="024 123 4567" value="<?= escapeHtml($user['phone'] ?? '') ?>">
+          <span class="field-hint">Optional; used for order and delivery contact</span>
         </label>
       </div>
       <button class="button button-dark" type="submit">Save profile <span aria-hidden="true">→</span></button>
