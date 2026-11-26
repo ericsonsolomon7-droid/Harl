@@ -52,11 +52,11 @@ function database(): PDO
 {
     loadLocalEnvironment();
 
-    $host = getenv('DB_HOST') ?: '127.0.0.1';
-    $port = getenv('DB_PORT') ?: '3306';
-    $name = getenv('DB_DATABASE') ?: 'bookstore_db';
-    $username = getenv('DB_USERNAME') ?: 'root';
-    $password = getenv('DB_PASSWORD');
+    $host = getenv('DB_HOST') ?: (getenv('MYSQLHOST') ?: (getenv('MYSQL_HOST') ?: '127.0.0.1'));
+    $port = getenv('DB_PORT') ?: (getenv('MYSQLPORT') ?: (getenv('MYSQL_PORT') ?: '3306'));
+    $name = getenv('DB_DATABASE') ?: (getenv('MYSQLDATABASE') ?: (getenv('MYSQL_DATABASE') ?: 'bookstore_db'));
+    $username = getenv('DB_USERNAME') ?: (getenv('MYSQLUSER') ?: (getenv('MYSQL_USER') ?: 'root'));
+    $password = getenv('DB_PASSWORD') ?: (getenv('MYSQLPASSWORD') ?: (getenv('MYSQL_PASSWORD') ?: ''));
     $password = $password === false ? '' : $password;
 
     $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4', $host, $port, $name);
