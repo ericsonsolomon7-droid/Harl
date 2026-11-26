@@ -1,0 +1,10 @@
+.git
+.github
+.env
+.env.*
+!.env.example
+vendor/
+storage/logs/*
+storage/cache/*
+storage/uploads/*
+*.log
