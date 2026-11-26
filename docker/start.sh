@@ -55,7 +55,7 @@ initialize_database() {
 
   if [ "$table_count" != "3" ]; then
     echo "Initializing Harl database schema in $DB_DATABASE"
-    if ! sed '/^CREATE DATABASE/d;/^USE /d' /var/www/html/database/bookstore.sql \
+    if ! sed '/^CREATE DATABASE/,/;$/d;/^USE /d' /var/www/html/database/bookstore.sql \
       | mysql --connect-timeout=10 -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" "$DB_DATABASE"; then
       echo "Harl database schema initialization failed" >&2
     fi
