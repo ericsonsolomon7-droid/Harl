@@ -38,6 +38,7 @@ $headerCartCount = max(0, (int) ($_SESSION['cart_item_count'] ?? 0));
       </button>
       <nav class="primary-navigation" id="primary-navigation" aria-label="Main navigation">
         <a href="<?= escapeHtml($basePath) ?>/books.php">Books</a>
+        <a href="<?= escapeHtml($basePath) ?>/about.php">About us</a>
         <a href="<?= escapeHtml($basePath) ?>/books.php#filters">Categories</a>
         <a href="<?= escapeHtml($basePath) ?>/#bestsellers">Best sellers</a>
       </nav>

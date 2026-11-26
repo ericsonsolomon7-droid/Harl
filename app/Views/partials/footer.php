@@ -9,6 +9,7 @@
         <p>A good book opens a new door. Find your next one here.</p>
       </div>
       <div class="footer-note">
+        <a class="footer-about-link" href="<?= escapeHtml($basePath) ?>/about.php">About us</a>
         <span class="eyebrow">ROOTED IN GHANA</span>
         <p>Thoughtful reads, local stories, and a little something for every shelf.</p>
       </div>
