@@ -26,25 +26,32 @@ export DB_USERNAME="${DB_USERNAME:-${MYSQLUSER:-${MYSQL_USER:-${railway_username
 export DB_PASSWORD="${DB_PASSWORD:-${MYSQLPASSWORD:-${MYSQL_PASSWORD:-${railway_password:-}}}}"
 
 if [ -n "$DB_HOST" ] && [ "$DB_HOST" != "127.0.0.1" ]; then
-  max_attempts=15
+  max_attempts=60
   attempt=1
-  while ! mysqladmin ping --connect-timeout=3 -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" --password="$DB_PASSWORD" --silent >/dev/null 2>&1; do
+  while ! mysqladmin ping --connect-timeout=5 -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" --password="$DB_PASSWORD" --silent >/dev/null 2>&1; do
     if [ "$attempt" -ge "$max_attempts" ]; then
-      echo "MySQL did not become ready in time; starting Apache so the app can return its database error page" >&2
+      echo "MySQL did not become ready after $((max_attempts * 2)) seconds" >&2
       break
     fi
     attempt=$((attempt + 1))
     sleep 2
   done
 
-  if mysqladmin ping --connect-timeout=3 -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" --password="$DB_PASSWORD" --silent >/dev/null 2>&1; then
-    table_count=$(mysql --connect-timeout=3 -N -B -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" --password="$DB_PASSWORD" "$DB_DATABASE" \
-      -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'users';" 2>/dev/null || printf '0')
+  if mysqladmin ping --connect-timeout=5 -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" --password="$DB_PASSWORD" --silent >/dev/null 2>&1; then
+    table_count=$(mysql --connect-timeout=5 -N -B -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" --password="$DB_PASSWORD" "$DB_DATABASE" \
+      -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name IN ('users', 'categories', 'books');" 2>/dev/null || printf '0')
 
-    if [ "$table_count" = "0" ]; then
-      sed '/^CREATE DATABASE/d;/^USE /d' /var/www/html/database/bookstore.sql \
-        | mysql --connect-timeout=3 -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" --password="$DB_PASSWORD" "$DB_DATABASE"
+    if [ "$table_count" != "3" ]; then
+      echo "Initializing Harl database schema in $DB_DATABASE"
+      if ! sed '/^CREATE DATABASE/d;/^USE /d' /var/www/html/database/bookstore.sql \
+        | mysql --connect-timeout=10 -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" --password="$DB_PASSWORD" "$DB_DATABASE"; then
+        echo "Harl database schema initialization failed" >&2
+      fi
     fi
+
+    core_tables=$(mysql --connect-timeout=5 -N -B -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" --password="$DB_PASSWORD" "$DB_DATABASE" \
+      -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name IN ('users', 'categories', 'books');" 2>/dev/null || printf '0')
+    echo "Harl core database tables ready: $core_tables/3"
   fi
 fi
 

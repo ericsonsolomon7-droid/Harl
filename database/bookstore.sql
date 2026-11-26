@@ -7,7 +7,7 @@ USE bookstore_db;
 SET NAMES utf8mb4;
 -- Import into a new bookstore_db. This installer intentionally does not drop existing data.
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   role ENUM('customer', 'admin', 'seller') NOT NULL DEFAULT 'customer',
   first_name VARCHAR(100) NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE users (
   KEY idx_users_created_at (created_at)
 ) ENGINE=InnoDB;
 
-CREATE TABLE auth_attempts (
+CREATE TABLE IF NOT EXISTS auth_attempts (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   email_hash BINARY(32) NOT NULL,
   ip_address VARBINARY(16) NOT NULL,
@@ -40,7 +40,7 @@ CREATE TABLE auth_attempts (
   KEY idx_auth_attempts_time (attempted_at)
 ) ENGINE=InnoDB;
 
-CREATE TABLE categories (
+CREATE TABLE IF NOT EXISTS categories (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   parent_id BIGINT UNSIGNED NULL,
   name VARCHAR(120) NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE categories (
   CONSTRAINT fk_categories_parent FOREIGN KEY (parent_id) REFERENCES categories (id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
-CREATE TABLE authors (
+CREATE TABLE IF NOT EXISTS authors (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   name VARCHAR(180) NOT NULL,
   biography TEXT NULL,
@@ -64,7 +64,7 @@ CREATE TABLE authors (
   KEY idx_authors_name (name)
 ) ENGINE=InnoDB;
 
-CREATE TABLE publishers (
+CREATE TABLE IF NOT EXISTS publishers (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   name VARCHAR(180) NOT NULL,
   website VARCHAR(255) NULL,
@@ -73,7 +73,7 @@ CREATE TABLE publishers (
   UNIQUE KEY uq_publishers_name (name)
 ) ENGINE=InnoDB;
 
-CREATE TABLE books (
+CREATE TABLE IF NOT EXISTS books (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   category_id BIGINT UNSIGNED NULL,
   publisher_id BIGINT UNSIGNED NULL,
@@ -106,7 +106,7 @@ CREATE TABLE books (
   CONSTRAINT chk_books_discount_price CHECK (discount_price IS NULL OR (discount_price >= 0 AND discount_price < price))
 ) ENGINE=InnoDB;
 
-CREATE TABLE book_authors (
+CREATE TABLE IF NOT EXISTS book_authors (
   book_id BIGINT UNSIGNED NOT NULL,
   author_id BIGINT UNSIGNED NOT NULL,
   author_order TINYINT UNSIGNED NOT NULL DEFAULT 1,
@@ -116,7 +116,7 @@ CREATE TABLE book_authors (
   CONSTRAINT fk_book_authors_author FOREIGN KEY (author_id) REFERENCES authors (id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
-CREATE TABLE carts (
+CREATE TABLE IF NOT EXISTS carts (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id BIGINT UNSIGNED NULL,
   session_token CHAR(64) NULL,
@@ -129,7 +129,7 @@ CREATE TABLE carts (
   CONSTRAINT fk_carts_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
-CREATE TABLE cart_items (
+CREATE TABLE IF NOT EXISTS cart_items (
   cart_id BIGINT UNSIGNED NOT NULL,
   book_id BIGINT UNSIGNED NOT NULL,
   quantity INT UNSIGNED NOT NULL,
@@ -141,7 +141,7 @@ CREATE TABLE cart_items (
   CONSTRAINT chk_cart_items_quantity CHECK (quantity > 0)
 ) ENGINE=InnoDB;
 
-CREATE TABLE wishlists (
+CREATE TABLE IF NOT EXISTS wishlists (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id BIGINT UNSIGNED NOT NULL,
   name VARCHAR(120) NOT NULL DEFAULT 'My wishlist',
@@ -151,7 +151,7 @@ CREATE TABLE wishlists (
   CONSTRAINT fk_wishlists_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
-CREATE TABLE wishlist_items (
+CREATE TABLE IF NOT EXISTS wishlist_items (
   wishlist_id BIGINT UNSIGNED NOT NULL,
   book_id BIGINT UNSIGNED NOT NULL,
   added_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -161,7 +161,7 @@ CREATE TABLE wishlist_items (
   CONSTRAINT fk_wishlist_items_book FOREIGN KEY (book_id) REFERENCES books (id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
-CREATE TABLE addresses (
+CREATE TABLE IF NOT EXISTS addresses (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id BIGINT UNSIGNED NOT NULL,
   recipient_name VARCHAR(200) NOT NULL,
@@ -179,7 +179,7 @@ CREATE TABLE addresses (
   CONSTRAINT fk_addresses_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
-CREATE TABLE coupons (
+CREATE TABLE IF NOT EXISTS coupons (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   code VARCHAR(50) NOT NULL,
   discount_type ENUM('fixed', 'percentage') NOT NULL,
@@ -199,7 +199,7 @@ CREATE TABLE coupons (
   CONSTRAINT chk_coupons_minimum CHECK (minimum_subtotal >= 0)
 ) ENGINE=InnoDB;
 
-CREATE TABLE orders (
+CREATE TABLE IF NOT EXISTS orders (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   order_number VARCHAR(32) NOT NULL,
   user_id BIGINT UNSIGNED NOT NULL,
@@ -236,7 +236,7 @@ CREATE TABLE orders (
   )
 ) ENGINE=InnoDB;
 
-CREATE TABLE order_items (
+CREATE TABLE IF NOT EXISTS order_items (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   order_id BIGINT UNSIGNED NOT NULL,
   book_id BIGINT UNSIGNED NULL,
@@ -253,7 +253,7 @@ CREATE TABLE order_items (
   CONSTRAINT chk_order_items_values CHECK (quantity > 0 AND unit_price >= 0 AND line_total >= 0)
 ) ENGINE=InnoDB;
 
-CREATE TABLE payments (
+CREATE TABLE IF NOT EXISTS payments (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   order_id BIGINT UNSIGNED NOT NULL,
   provider VARCHAR(40) NOT NULL,
@@ -274,7 +274,7 @@ CREATE TABLE payments (
   CONSTRAINT chk_payments_amount CHECK (amount >= 0)
 ) ENGINE=InnoDB;
 
-CREATE TABLE shipments (
+CREATE TABLE IF NOT EXISTS shipments (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   order_id BIGINT UNSIGNED NOT NULL,
   carrier VARCHAR(120) NULL,
@@ -291,7 +291,7 @@ CREATE TABLE shipments (
   CONSTRAINT fk_shipments_order FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
-CREATE TABLE coupon_usages (
+CREATE TABLE IF NOT EXISTS coupon_usages (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   coupon_id BIGINT UNSIGNED NOT NULL,
   user_id BIGINT UNSIGNED NOT NULL,
@@ -306,7 +306,7 @@ CREATE TABLE coupon_usages (
   CONSTRAINT fk_coupon_usages_order FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
-CREATE TABLE inventory_logs (
+CREATE TABLE IF NOT EXISTS inventory_logs (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   book_id BIGINT UNSIGNED NOT NULL,
   administrator_id BIGINT UNSIGNED NULL,
@@ -323,7 +323,7 @@ CREATE TABLE inventory_logs (
   CONSTRAINT fk_inventory_logs_admin FOREIGN KEY (administrator_id) REFERENCES users (id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
-CREATE TABLE reviews (
+CREATE TABLE IF NOT EXISTS reviews (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   book_id BIGINT UNSIGNED NOT NULL,
   user_id BIGINT UNSIGNED NOT NULL,
@@ -346,7 +346,7 @@ CREATE TABLE reviews (
   CONSTRAINT chk_reviews_rating CHECK (rating BETWEEN 1 AND 5)
 ) ENGINE=InnoDB;
 
-CREATE TABLE contact_messages (
+CREATE TABLE IF NOT EXISTS contact_messages (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   name VARCHAR(200) NOT NULL,
   email VARCHAR(254) NOT NULL,
@@ -359,7 +359,7 @@ CREATE TABLE contact_messages (
   KEY idx_contact_status_date (status, created_at)
 ) ENGINE=InnoDB;
 
-CREATE TABLE newsletter_subscribers (
+CREATE TABLE IF NOT EXISTS newsletter_subscribers (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   email VARCHAR(254) NOT NULL,
   status ENUM('subscribed', 'unsubscribed') NOT NULL DEFAULT 'subscribed',
@@ -369,7 +369,7 @@ CREATE TABLE newsletter_subscribers (
   UNIQUE KEY uq_newsletter_email (email)
 ) ENGINE=InnoDB;
 
-CREATE TABLE activity_logs (
+CREATE TABLE IF NOT EXISTS activity_logs (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id BIGINT UNSIGNED NULL,
   action VARCHAR(120) NOT NULL,
@@ -384,7 +384,7 @@ CREATE TABLE activity_logs (
   CONSTRAINT fk_activity_logs_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
-CREATE TABLE delivery_zones (
+CREATE TABLE IF NOT EXISTS delivery_zones (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   region VARCHAR(100) NOT NULL,
   city VARCHAR(120) NOT NULL DEFAULT '*',
@@ -395,14 +395,14 @@ CREATE TABLE delivery_zones (
   CONSTRAINT chk_delivery_zone_fee CHECK (fee >= 0)
 ) ENGINE=InnoDB;
 
-CREATE TABLE site_settings (
+CREATE TABLE IF NOT EXISTS site_settings (
   setting_key VARCHAR(100) NOT NULL,
   setting_value TEXT NOT NULL,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (setting_key)
 ) ENGINE=InnoDB;
 
-CREATE TABLE sellers (
+CREATE TABLE IF NOT EXISTS sellers (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id BIGINT UNSIGNED NOT NULL,
   store_name VARCHAR(180) NOT NULL,
@@ -425,7 +425,7 @@ CREATE TABLE sellers (
   CONSTRAINT fk_sellers_verified_by FOREIGN KEY (verified_by) REFERENCES users (id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
-CREATE TABLE seller_applications (
+CREATE TABLE IF NOT EXISTS seller_applications (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   seller_id BIGINT UNSIGNED NOT NULL,
   application_data JSON NOT NULL,
@@ -457,7 +457,7 @@ ALTER TABLE books
   ADD CONSTRAINT fk_books_seller FOREIGN KEY (seller_id) REFERENCES sellers (id) ON DELETE RESTRICT,
   ADD CONSTRAINT fk_books_reviewed_by FOREIGN KEY (reviewed_by) REFERENCES users (id) ON DELETE SET NULL;
 
-CREATE TABLE book_images (
+CREATE TABLE IF NOT EXISTS book_images (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   book_id BIGINT UNSIGNED NOT NULL,
   image_path VARCHAR(500) NOT NULL,
@@ -468,7 +468,7 @@ CREATE TABLE book_images (
   CONSTRAINT fk_book_images_book FOREIGN KEY (book_id) REFERENCES books (id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
-CREATE TABLE book_approval_history (
+CREATE TABLE IF NOT EXISTS book_approval_history (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   book_id BIGINT UNSIGNED NOT NULL,
   seller_id BIGINT UNSIGNED NULL,
@@ -494,7 +494,7 @@ ALTER TABLE order_items
   ADD KEY idx_order_items_seller (seller_id, order_id),
   ADD CONSTRAINT fk_order_items_seller FOREIGN KEY (seller_id) REFERENCES sellers (id) ON DELETE SET NULL;
 
-CREATE TABLE seller_order_fulfillments (
+CREATE TABLE IF NOT EXISTS seller_order_fulfillments (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   order_id BIGINT UNSIGNED NOT NULL,
   seller_id BIGINT UNSIGNED NOT NULL,
@@ -511,7 +511,7 @@ CREATE TABLE seller_order_fulfillments (
   CONSTRAINT fk_seller_fulfillments_seller FOREIGN KEY (seller_id) REFERENCES sellers (id) ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
-CREATE TABLE seller_commissions (
+CREATE TABLE IF NOT EXISTS seller_commissions (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   seller_id BIGINT UNSIGNED NOT NULL,
   order_item_id BIGINT UNSIGNED NOT NULL,
@@ -529,7 +529,7 @@ CREATE TABLE seller_commissions (
   CONSTRAINT chk_seller_commissions_amounts CHECK (gross_amount >= 0 AND commission_rate >= 0 AND commission_amount >= 0 AND seller_net_amount >= 0)
 ) ENGINE=InnoDB;
 
-CREATE TABLE seller_payouts (
+CREATE TABLE IF NOT EXISTS seller_payouts (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   seller_id BIGINT UNSIGNED NOT NULL,
   amount DECIMAL(10,2) NOT NULL,
@@ -546,7 +546,7 @@ CREATE TABLE seller_payouts (
   CONSTRAINT chk_seller_payouts_amount CHECK (amount > 0)
 ) ENGINE=InnoDB;
 
-CREATE TABLE seller_notifications (
+CREATE TABLE IF NOT EXISTS seller_notifications (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   seller_id BIGINT UNSIGNED NOT NULL,
   title VARCHAR(180) NOT NULL,
@@ -559,7 +559,7 @@ CREATE TABLE seller_notifications (
   CONSTRAINT fk_seller_notifications_seller FOREIGN KEY (seller_id) REFERENCES sellers (id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
-CREATE TABLE marketplace_settings (
+CREATE TABLE IF NOT EXISTS marketplace_settings (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   setting_key VARCHAR(100) NOT NULL,
   setting_value VARCHAR(500) NOT NULL,
@@ -568,9 +568,9 @@ CREATE TABLE marketplace_settings (
   UNIQUE KEY uq_marketplace_settings_key (setting_key)
 ) ENGINE=InnoDB;
 
-INSERT INTO marketplace_settings (setting_key, setting_value) VALUES ('default_commission_rate', '10.00');
+INSERT IGNORE INTO marketplace_settings (setting_key, setting_value) VALUES ('default_commission_rate', '10.00');
 
-INSERT INTO categories (name, slug, description) VALUES
+INSERT IGNORE INTO categories (name, slug, description) VALUES
   ('Fiction', 'fiction', 'Stories across literary and popular fiction.'),
   ('Business', 'business', 'Entrepreneurship, leadership, and finance.'),
   ('Children', 'children', 'Books for young readers.'),
@@ -578,7 +578,7 @@ INSERT INTO categories (name, slug, description) VALUES
   ('History', 'history', 'Ghanaian, African, and world history.'),
   ('Personal Development', 'personal-development', 'Practical guides for personal growth.');
 
-INSERT INTO authors (name) VALUES
+INSERT IGNORE INTO authors (name) VALUES
   ('Ama Ata Aidoo'),
   ('Ayi Kwei Armah'),
   ('Chinua Achebe'),
@@ -586,13 +586,13 @@ INSERT INTO authors (name) VALUES
   ('Efua Sutherland'),
   ('Kofi Awoonor');
 
-INSERT INTO publishers (name, website) VALUES
+INSERT IGNORE INTO publishers (name, website) VALUES
   ('Heinemann', NULL),
   ('African Writers Series', NULL),
   ('Ghana University Press', NULL),
   ('Anansesem Press', NULL);
 
-INSERT INTO books
+INSERT IGNORE INTO books
   (category_id, publisher_id, isbn, title, slug, description, publication_date, page_count, price, discount_price, stock_quantity, status)
 VALUES
   (1, 1, '9780435909918', 'The Dilemma of a Ghost', 'the-dilemma-of-a-ghost', 'A celebrated play exploring identity, family, and cultural expectations.', '1965-01-01', 80, 55.00, NULL, 18, 'active'),
@@ -606,7 +606,7 @@ VALUES
   (4, 3, '9789988550005', 'African History: An Introduction', 'african-history-an-introduction', 'An accessible overview of major periods and themes in African history.', '2020-03-10', 260, 110.00, 99.00, 8, 'active'),
   (6, 3, '9789988550006', 'Building Better Habits', 'building-better-habits', 'A concise guide to setting goals and building lasting routines.', '2023-01-20', 156, 68.00, NULL, 13, 'active');
 
-INSERT INTO book_authors (book_id, author_id, author_order) VALUES
+INSERT IGNORE INTO book_authors (book_id, author_id, author_order) VALUES
   (1, 1, 1),
   (2, 2, 1),
   (3, 3, 1),
@@ -614,7 +614,7 @@ INSERT INTO book_authors (book_id, author_id, author_order) VALUES
   (5, 5, 1),
   (6, 6, 1);
 
-INSERT INTO site_settings (setting_key, setting_value) VALUES
+INSERT IGNORE INTO site_settings (setting_key, setting_value) VALUES
   ('currency', 'GHS'),
   ('currency_symbol', 'GH₵'),
   ('tax_rate_percent', '0'),
@@ -623,6 +623,6 @@ INSERT INTO site_settings (setting_key, setting_value) VALUES
   ('store_email', ''),
   ('store_phone', '');
 
-INSERT INTO delivery_zones (region, city, fee, is_active) VALUES
+INSERT IGNORE INTO delivery_zones (region, city, fee, is_active) VALUES
   ('Greater Accra', '*', 0.00, 1),
   ('Ashanti', '*', 0.00, 1);
