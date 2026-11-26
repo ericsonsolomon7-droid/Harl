@@ -52,12 +52,27 @@ function database(): PDO
 {
     loadLocalEnvironment();
 
-    $host = getenv('DB_HOST') ?: (getenv('MYSQLHOST') ?: (getenv('MYSQL_HOST') ?: '127.0.0.1'));
+    $host = getenv('DB_HOST') ?: (getenv('MYSQLHOST') ?: (getenv('MYSQL_HOST') ?: ''));
     $port = getenv('DB_PORT') ?: (getenv('MYSQLPORT') ?: (getenv('MYSQL_PORT') ?: '3306'));
-    $name = getenv('DB_DATABASE') ?: (getenv('MYSQLDATABASE') ?: (getenv('MYSQL_DATABASE') ?: 'bookstore_db'));
-    $username = getenv('DB_USERNAME') ?: (getenv('MYSQLUSER') ?: (getenv('MYSQL_USER') ?: 'root'));
+    $name = getenv('DB_DATABASE') ?: (getenv('MYSQLDATABASE') ?: (getenv('MYSQL_DATABASE') ?: ''));
+    $username = getenv('DB_USERNAME') ?: (getenv('MYSQLUSER') ?: (getenv('MYSQL_USER') ?: ''));
     $password = getenv('DB_PASSWORD') ?: (getenv('MYSQLPASSWORD') ?: (getenv('MYSQL_PASSWORD') ?: ''));
-    $password = $password === false ? '' : $password;
+
+    $connectionUrl = getenv('DATABASE_URL') ?: (getenv('MYSQL_URL') ?: getenv('MYSQLDATABASE_URL'));
+    if (is_string($connectionUrl) && $connectionUrl !== '') {
+        $connection = parse_url($connectionUrl);
+        if ($connection !== false) {
+            $host = $host ?: (string) ($connection['host'] ?? '');
+            $port = getenv('DB_PORT') ?: (getenv('MYSQLPORT') ?: (getenv('MYSQL_PORT') ?: (string) ($connection['port'] ?? '3306')));
+            $name = $name ?: ltrim((string) ($connection['path'] ?? ''), '/');
+            $username = $username ?: (string) ($connection['user'] ?? '');
+            $password = $password ?: (string) ($connection['pass'] ?? '');
+        }
+    }
+
+    $host = $host ?: '127.0.0.1';
+    $name = $name ?: 'bookstore_db';
+    $username = $username ?: 'root';
 
     $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4', $host, $port, $name);
 
