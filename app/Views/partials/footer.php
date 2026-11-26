@@ -1,3 +1,4 @@
+<?php use function Bookstore\Support\escapeHtml; ?>
   <footer class="site-footer">
     <div class="footer-main">
       <div class="footer-brand">
