@@ -8,6 +8,15 @@
       <h1><?= escapeHtml($seller['store_name']) ?></h1>
       <p>Manage your marketplace application and approved book listings.</p>
     </header>
+    <section class="customer-panel seller-business-details">
+      <div class="customer-section-heading"><div><span class="eyebrow">BUSINESS PROFILE</span><h2>Store details</h2></div></div>
+      <dl>
+        <div><dt>Business or store</dt><dd><?= escapeHtml($seller['store_name']) ?></dd></div>
+        <div><dt>Business address</dt><dd><?= escapeHtml($seller['business_address']) ?></dd></div>
+        <div><dt>Location</dt><dd><?= escapeHtml($seller['city'] . ', ' . $seller['region']) ?></dd></div>
+        <div class="seller-description"><dt>About the business</dt><dd><?= nl2br(escapeHtml($seller['description'])) ?></dd></div>
+      </dl>
+    </section>
     <section class="customer-panel">
       <h2>Application status</h2>
       <p><strong><?= escapeHtml(ucwords(str_replace('_', ' ', (string) $seller['verification_status']))) ?></strong></p>

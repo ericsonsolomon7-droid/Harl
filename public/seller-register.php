@@ -68,6 +68,9 @@ if ($requestMethod === 'POST') {
                 break;
             }
         }
+        if ($fields['business_address'] !== '' && textLength($fields['business_address']) < 10) {
+            $errors[] = 'Enter a complete business address of at least 10 characters.';
+        }
         if (!filter_var($fields['email'], FILTER_VALIDATE_EMAIL)) {
             $errors[] = 'Enter a valid email address.';
         }

@@ -18,11 +18,11 @@
 <?php if ($items === []): ?>
   <section class="admin-panel"><p class="admin-empty">No records match these filters.</p></section>
 <?php elseif ($section === 'sellers'): ?>
-  <section class="admin-panel"><div class="admin-table-scroll"><table class="admin-table"><thead><tr><th>Seller</th><th>Contact</th><th>Type/location</th><th>Submitted</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+  <section class="admin-panel"><div class="admin-table-scroll"><table class="admin-table"><thead><tr><th>Seller</th><th>Contact</th><th>Business details</th><th>Submitted</th><th>Status</th><th>Actions</th></tr></thead><tbody>
   <?php foreach ($items as $item): ?><tr>
     <td><strong><?= escapeHtml($item['store_name']) ?></strong><br><?= escapeHtml($item['first_name'] . ' ' . $item['last_name']) ?></td>
     <td><?= escapeHtml($item['email']) ?><br><?= escapeHtml((string) $item['phone']) ?></td>
-    <td><?= escapeHtml(ucwords(str_replace('_', ' ', $item['seller_type']))) ?><br><?= escapeHtml($item['city'] . ', ' . $item['region']) ?></td>
+    <td><strong><?= escapeHtml(ucwords(str_replace('_', ' ', $item['seller_type']))) ?></strong><br><?= escapeHtml($item['city'] . ', ' . $item['region']) ?><br><small><?= escapeHtml($item['business_address']) ?></small><?php if (!empty($item['description'])): ?><br><span class="admin-description"><?= escapeHtml($item['description']) ?></span><?php endif; ?></td>
     <td><?= escapeHtml(date('M j, Y', strtotime($item['submitted_at'] ?? $item['created_at']))) ?></td>
     <td><span class="admin-status"><?= escapeHtml(ucwords(str_replace('_', ' ', $item['verification_status']))) ?></span></td>
     <td><div class="admin-marketplace-actions">

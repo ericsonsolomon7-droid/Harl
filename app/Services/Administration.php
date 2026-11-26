@@ -205,8 +205,9 @@ final class Administration
             $parameters['name_search'] = $like;
         }
         $statement = $this->pdo->prepare(
-            'SELECT s.id, s.store_name, s.seller_type, s.region, s.city, s.verification_status,
-                    s.created_at, u.first_name, u.last_name, u.email, u.phone,
+            'SELECT s.id, s.store_name, s.seller_type, s.region, s.city, s.business_address,
+                    s.description, s.verification_status, s.created_at,
+                    u.first_name, u.last_name, u.email, u.phone,
                     sa.id AS application_id, sa.status AS application_status, sa.admin_notes,
                     sa.rejection_reason, sa.submitted_at, sa.reviewed_at
              FROM sellers s
