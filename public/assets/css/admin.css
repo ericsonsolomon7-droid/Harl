@@ -58,6 +58,12 @@ button, input, select { font: inherit; }
 .admin-filters { display: flex; align-items: end; flex-wrap: wrap; gap: 12px; }
 .admin-filters label { display: flex; flex-direction: column; gap: 5px; min-width: 180px; color: var(--admin-muted); font-size: 9px; }
 .admin-filters input, .admin-filters select, .admin-action-form select { min-height: 37px; padding: 7px 9px; border: 1px solid var(--admin-line); color: var(--admin-ink); background: #fff; font-size: 10px; }
+.admin-book-form { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+.admin-form-grid { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.admin-form-grid label { display: flex; flex-direction: column; gap: 5px; color: var(--admin-muted); font-size: 9px; }
+.admin-form-grid input, .admin-form-grid select, .admin-form-grid textarea { min-height: 38px; width: 100%; padding: 8px 9px; border: 1px solid var(--admin-line); color: var(--admin-ink); background: #fff; font-size: 10px; }
+.admin-form-grid textarea { min-height: 110px; resize: vertical; }
+.admin-form-wide { grid-column: 1 / -1; }
 .admin-order-list { display: flex; flex-direction: column; gap: 13px; margin-top: 19px; }
 .admin-order-card { border: 1px solid var(--admin-line); background: #fff; }
 .admin-order-heading { display: flex; justify-content: space-between; gap: 16px; padding: 17px 19px; border-bottom: 1px solid var(--admin-line); }
@@ -91,6 +97,8 @@ button, input, select { font: inherit; }
   .admin-order-details { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 480px) {
+  .admin-form-grid { grid-template-columns: 1fr; }
+  .admin-form-wide { grid-column: auto; }
   .admin-page-heading { align-items: flex-start; flex-direction: column; }
   .admin-metrics article { min-height: 102px; padding: 13px; }
   .admin-metrics strong { font-size: 22px; }

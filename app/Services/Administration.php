@@ -452,6 +452,137 @@ final class Administration
         return (int) $statement->fetchColumn();
     }
 
+    public function catalogueBooks(string $search, int $limit, int $offset): array
+    {
+        $where = 'WHERE b.seller_id IS NULL';
+        $parameters = [];
+        if ($search !== '') {
+            $where .= ' AND (b.title LIKE :title_search OR b.isbn LIKE :isbn_search OR b.author_text LIKE :author_search)';
+            $like = '%' . $search . '%';
+            $parameters['title_search'] = $like;
+            $parameters['isbn_search'] = $like;
+            $parameters['author_search'] = $like;
+        }
+        $statement = $this->pdo->prepare(
+            'SELECT b.id, b.title, b.author_text, b.isbn, b.slug, b.description,
+                    b.category_id, b.publisher_id, b.publication_date, b.language,
+                    b.page_count, b.price, b.discount_price, b.stock_quantity,
+                    b.low_stock_threshold, b.status, b.cover_image,
+                    c.name AS category_name
+             FROM books b
+             LEFT JOIN categories c ON c.id = b.category_id ' . $where . '
+             ORDER BY b.created_at DESC, b.id DESC
+             LIMIT :result_limit OFFSET :result_offset'
+        );
+        foreach ($parameters as $key => $value) {
+            $statement->bindValue(':' . $key, $value, PDO::PARAM_STR);
+        }
+        $statement->bindValue(':result_limit', $limit, PDO::PARAM_INT);
+        $statement->bindValue(':result_offset', $offset, PDO::PARAM_INT);
+        $statement->execute();
+
+        return $statement->fetchAll();
+    }
+
+    public function countCatalogueBooks(string $search): int
+    {
+        $where = 'WHERE seller_id IS NULL';
+        $parameters = [];
+        if ($search !== '') {
+            $where .= ' AND (title LIKE :title_search OR isbn LIKE :isbn_search OR author_text LIKE :author_search)';
+            $like = '%' . $search . '%';
+            $parameters['title_search'] = $like;
+            $parameters['isbn_search'] = $like;
+            $parameters['author_search'] = $like;
+        }
+        $statement = $this->pdo->prepare('SELECT COUNT(*) FROM books ' . $where);
+        $statement->execute($parameters);
+
+        return (int) $statement->fetchColumn();
+    }
+
+    public function catalogueCategories(): array
+    {
+        return $this->pdo->query(
+            'SELECT id, name FROM categories WHERE is_active = 1 ORDER BY name ASC'
+        )->fetchAll();
+    }
+
+    public function catalogueBook(int $bookId): ?array
+    {
+        $statement = $this->pdo->prepare('SELECT * FROM books WHERE id = :book_id AND seller_id IS NULL LIMIT 1');
+        $statement->execute(['book_id' => $bookId]);
+        $book = $statement->fetch();
+
+        return $book === false ? null : $book;
+    }
+
+    public function saveCatalogueBook(?int $bookId, array $book): void
+    {
+        $slug = strtolower(trim((string) $book['slug']));
+        $slug = preg_replace('/[^a-z0-9]+/', '-', $slug) ?? '';
+        $slug = trim($slug, '-');
+        if ($slug === '') {
+            throw new DomainException('Enter a valid URL slug.');
+        }
+
+        $parameters = [
+            'title' => $book['title'], 'author_text' => $book['author_text'], 'isbn' => $book['isbn'],
+            'slug' => $slug, 'description' => $book['description'], 'category_id' => $book['category_id'],
+            'publisher_id' => null, 'publication_date' => $book['publication_date'],
+            'language' => $book['language'], 'page_count' => $book['page_count'],
+            'price' => $book['price'], 'discount_price' => $book['discount_price'],
+            'stock_quantity' => $book['stock_quantity'], 'low_stock_threshold' => $book['low_stock_threshold'],
+            'status' => $book['status'], 'cover_image' => $book['cover_image'],
+        ];
+
+        if ($bookId === null) {
+            $statement = $this->pdo->prepare(
+                'INSERT INTO books (category_id, publisher_id, isbn, title, author_text, slug, description,
+                    cover_image, publication_date, language, page_count, price, discount_price,
+                    stock_quantity, low_stock_threshold, status)
+                 VALUES (:category_id, :publisher_id, :isbn, :title, :author_text, :slug, :description,
+                    :cover_image, :publication_date, :language, :page_count, :price, :discount_price,
+                    :stock_quantity, :low_stock_threshold, :status)'
+            );
+            $statement->execute($parameters);
+            return;
+        }
+
+        $parameters['book_id'] = $bookId;
+        $statement = $this->pdo->prepare(
+            'UPDATE books SET category_id = :category_id, publisher_id = :publisher_id,
+                    isbn = :isbn, title = :title, author_text = :author_text, slug = :slug,
+                    description = :description, cover_image = :cover_image,
+                    publication_date = :publication_date, language = :language,
+                    page_count = :page_count, price = :price, discount_price = :discount_price,
+                    stock_quantity = :stock_quantity, low_stock_threshold = :low_stock_threshold,
+                    status = :status
+             WHERE id = :book_id AND seller_id IS NULL'
+        );
+        $statement->execute($parameters);
+        if ($statement->rowCount() === 0) {
+            throw new DomainException('The catalogue book could not be updated.');
+        }
+    }
+
+    public function deleteCatalogueBook(int $bookId): void
+    {
+        $usage = $this->pdo->prepare('SELECT COUNT(*) FROM order_items WHERE book_id = :book_id');
+        $usage->execute(['book_id' => $bookId]);
+        if ((int) $usage->fetchColumn() > 0) {
+            $archive = $this->pdo->prepare("UPDATE books SET status = 'archived' WHERE id = :book_id AND seller_id IS NULL");
+            $archive->execute(['book_id' => $bookId]);
+            return;
+        }
+
+        $delete = $this->pdo->prepare('DELETE FROM books WHERE id = :book_id AND seller_id IS NULL');
+        $delete->execute(['book_id' => $bookId]);
+        if ($delete->rowCount() === 0) {
+            throw new DomainException('The catalogue book could not be deleted.');
+        }
+    }
+
     private function notifySeller(int $sellerId, string $title, string $message, string $type): void
     {
         $statement = $this->pdo->prepare(

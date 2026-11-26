@@ -18,6 +18,7 @@ use function Bookstore\Support\escapeHtml;
     <nav aria-label="Administration">
       <a href="<?= escapeHtml($basePath) ?>/index.php">Overview</a>
       <a href="<?= escapeHtml($basePath) ?>/orders.php">Orders</a>
+      <a href="<?= escapeHtml($basePath) ?>/books.php">Books</a>
       <a href="<?= escapeHtml($basePath) ?>/marketplace.php">Marketplace</a>
       <a href="<?= escapeHtml(dirname($basePath)) ?>/">Storefront</a>
     </nav>
