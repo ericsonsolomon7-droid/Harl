@@ -20,7 +20,7 @@ $pageTitle = 'Administration';
 
 try {
     $pdo = database();
-    $administrator = requireRole($pdo, 'admin', dirname($basePath) . '/login.php');
+    $administrator = requireRole($pdo, 'admin', '/login.php');
     $dashboard = (new Administration($pdo))->dashboard();
 } catch (PDOException $exception) {
     error_log('Bookstore administration dashboard database error: ' . $exception->getMessage());

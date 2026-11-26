@@ -41,7 +41,7 @@ $errorMessage = '';
 
 try {
     $pdo = database();
-    $administrator = requireRole($pdo, 'admin', dirname($basePath) . '/login.php');
+    $administrator = requireRole($pdo, 'admin', '/login.php');
     $operations = new Administration($pdo);
 
     if ($requestMethod === 'POST') {
